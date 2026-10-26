@@ -23,7 +23,7 @@ let observerTimeout = null;
 let criteriaInput = null;
 let apiKeyInput = null;
 let statusLabel = null;
-let modeButton = null;
+const modeButtons = { hide: null, opacity: null };
 
 /** criteria+text -> probability, so a re-apply never pays twice. */
 const decisionCache = new Map();
@@ -39,6 +39,7 @@ function t(key, fallback = "") {
 const STYLE_TEXT = `
 .jev-hide { display: none !important; }
 .jev-dim { opacity: 0.2 !important; pointer-events: none !important; }
+.jev-green { background-color: #E8F5E8 !important; }
 .jev-ad { position: relative; }
 .jev-badge {
   position: absolute; top: 5px; right: 5px; z-index: 1000;
@@ -63,6 +64,8 @@ const STYLE_TEXT = `
   background: #3498db; color: #fff; font-size: 14px; cursor: pointer;
 }
 .jev-btn:hover, .jev-mode-btn:hover { background: #2980b9; }
+.jev-mode-btn.active { background: #27ae60; }
+.jev-mode-btn.active:hover { background: #229954; }
 .jev-close { background: #e74c3c; }
 .jev-close:hover { background: #c0392b; }
 .jev-group { display: flex; gap: 5px; align-items: center; }
@@ -90,9 +93,9 @@ function setStatus(text) {
   if (statusLabel) statusLabel.textContent = text || "";
 }
 
-function updateModeButton() {
-  if (!modeButton) return;
-  modeButton.textContent = currentMode === "hide" ? t("modeHide") : t("modeDim");
+function updateModeButtons() {
+  if (modeButtons.hide) modeButtons.hide.classList.toggle("active", currentMode === "hide");
+  if (modeButtons.opacity) modeButtons.opacity.classList.toggle("active", currentMode === "opacity");
 }
 
 function buildToolbar() {
@@ -151,11 +154,23 @@ function buildToolbar() {
   criteriaGroup.append(criteriaInput, clearButton);
 
   // --- mode / apply / close ------------------------------------------------
-  modeButton = document.createElement("button");
-  modeButton.className = "jev-mode-btn";
-  modeButton.title = t("modeTitle");
-  updateModeButton();
-  modeButton.onclick = cycleMode;
+  const modeGroup = document.createElement("div");
+  modeGroup.className = "jev-group";
+
+  modeButtons.hide = document.createElement("button");
+  modeButtons.hide.className = "jev-mode-btn";
+  modeButtons.hide.textContent = t("modeHide");
+  modeButtons.hide.title = t("modeTitle");
+  modeButtons.hide.onclick = () => setMode("hide");
+
+  modeButtons.opacity = document.createElement("button");
+  modeButtons.opacity.className = "jev-mode-btn";
+  modeButtons.opacity.textContent = t("modeDim");
+  modeButtons.opacity.title = t("modeTitle");
+  modeButtons.opacity.onclick = () => setMode("opacity");
+
+  updateModeButtons();
+  modeGroup.append(modeButtons.hide, modeButtons.opacity);
 
   const applyButton = document.createElement("button");
   applyButton.className = "jev-btn";
@@ -170,7 +185,7 @@ function buildToolbar() {
   statusLabel = document.createElement("span");
   statusLabel.className = "jev-status";
 
-  toolbar.append(keyGroup, criteriaGroup, modeButton, applyButton, closeButton, statusLabel);
+  toolbar.append(keyGroup, criteriaGroup, modeGroup, applyButton, closeButton, statusLabel);
   document.body.prepend(toolbar);
 
   updateStatus();
@@ -182,7 +197,8 @@ function removeToolbar() {
   criteriaInput = null;
   apiKeyInput = null;
   statusLabel = null;
-  modeButton = null;
+  modeButtons.hide = null;
+  modeButtons.opacity = null;
 }
 
 function showRestoreButton() {
@@ -263,10 +279,10 @@ function clearFilter() {
   setStatus("");
 }
 
-function cycleMode() {
-  currentMode = currentMode === "hide" ? "opacity" : "hide";
+function setMode(mode) {
+  currentMode = mode === "opacity" ? "opacity" : "hide";
   chrome.storage.local.set({ jevMode: currentMode });
-  updateModeButton();
+  updateModeButtons();
   applyMode();
 }
 
@@ -323,6 +339,9 @@ function applyMode() {
 
     element.classList.toggle("jev-hide", shouldHide && currentMode === "hide");
     element.classList.toggle("jev-dim", shouldHide && currentMode === "opacity");
+    // Light green marks the ads the model evaluated and kept - a visual check
+    // that the filter really ran. Hidden ads never keep the tint.
+    element.classList.toggle("jev-green", !shouldHide);
 
     if (shouldHide) ensureBadge(element, probability);
     else removeBadge(element);
@@ -331,7 +350,7 @@ function applyMode() {
 
 function resetAllAds() {
   adsAll().forEach((element) => {
-    element.classList.remove("jev-hide", "jev-dim", "jev-ad");
+    element.classList.remove("jev-hide", "jev-dim", "jev-green", "jev-ad");
     element.removeAttribute("data-jev-prob");
     element.removeAttribute(PROCESSED_ATTR);
     removeBadge(element);

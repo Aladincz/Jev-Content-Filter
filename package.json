@@ -20,7 +20,7 @@
     "typesafe",
     "jev"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@opengeni/jev": "^2.0.1"
   },

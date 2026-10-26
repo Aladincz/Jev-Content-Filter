@@ -1,117 +1,121 @@
 # Jev Content Filter
 
-Firefox (and Chromium-compatible) WebExtension that filters ads on classifieds
-pages with [TypeSafe Jev](https://typesafe.ai) AI. You type criteria, the
-extension asks the model for every ad whether it matches, and the ads that do not
-match are hidden — collapsed, not just faded out.
+A browser extension that hides classified ads you don't care about. You write
+your criteria in plain language, the extension asks the
+[TypeSafe Jev](https://typesafe.ai) System One API about every ad on the page, and
+the ads that do not match disappear — collapsed, not just faded out.
 
-> **Status: work in progress.** The extension is usable on Bazoš.cz; the site
-> selector list, the UI and the test coverage are still evolving.
+> **Status: work in progress.** Usable on Bazoš.cz right now. Interfaces, storage
+> keys and selectors may still change before 1.0.
 
-## What it does
+## Features (implemented)
 
-- Reads the ads on the page (`div.inzeraty` on Bazoš), asks the model in
-  **batches** whether each one matches your criteria, and hides the ones that do
-  not.
-- Two display modes: **Hide** (`display: none` — the page closes up, no empty
-  holes) and **Dim** (`opacity: .2` for eyeballing the results).
-- Keeps working after pagination: the content script is declared in
-  `manifest.json`, so it re-attaches on every page load and re-applies the last
-  criteria.
-- Caches decisions per criteria+text in memory, so re-applying or switching the
-  display mode costs no API calls.
-- Marks ads that failed as processed, so a broken API key can never turn the
-  mutation observer into an infinite request loop.
+- ✅ Ad filtering on Bazoš.cz / .sk / .pl / .at (`div.inzeraty`)
+- ✅ Criteria in Czech or English, evaluated per ad
+- ✅ **Two display modes** — *Hide* (`display: none`, no empty gaps) and *Dim*
+  (`opacity: .2`), with the active mode highlighted
+- ✅ **Green tint** on ads the model evaluated and kept — a visual check that
+  filtering actually ran
+- ✅ **Survives navigation** — the filter re-applies on pagination, because the
+  content script is declared in the manifest
+- ✅ **Batched API calls** (10 ads per request) + in-memory decision cache
+- ✅ **No retry loops** — ads that failed are marked and never re-requested
+- ✅ **Localization** (Czech, English) with tooling to add more
+- ✅ API key stored in `storage.local` with a stable extension ID, so it
+  survives rebuilds
+- ✅ Clear filter restores the page exactly (no leftover inline styles)
 
-## Install (development)
+## Install
+
+### As a user (temporary add-on)
+
+1. Download or clone this repository.
+2. `npm install && npm run build` (generates `_locales/` and `dist/`).
+3. Firefox → `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…**
+   → select `manifest.json`.
+4. Open a Bazoš listing, paste your TypeSafe API key into the panel.
+
+A temporary add-on is removed when Firefox closes. For daily use, install it
+permanently (sign it via AMO as *unlisted*, or use Developer Edition with
+`xpinstall.signatures.required = false`).
+
+### As a developer
 
 ```powershell
 npm install
-npm run build          # generates _locales/ and dist/
+npm run build     # i18n:build + esbuild -> dist/
+npm run dev       # esbuild --watch
+npm run check     # localization consistency
 ```
 
-1. `about:debugging#/runtime/this-firefox`
-2. **Load Temporary Add-on…** and pick `manifest.json`
-3. Open e.g. `https://pc.bazos.cz/?hledat=imac`
-4. Paste your TypeSafe API key into the panel, type criteria, press **Apply**
+`dist/` is generated and git-ignored; `_locales/` is generated but committed so
+the repository can be loaded directly as an unpacked extension.
 
-`manifest.json` declares a fixed `browser_specific_settings.gecko.id`
-(`jev-content-filter@local`), so the API key you save survives rebuilding and
-reloading the extension. A *Remove* + re-add of a temporary add-on still clears
-`storage.local` — install the add-on permanently if that bothers you.
+## Usage
 
-## Build
+| Element | What it does |
+| --- | --- |
+| **API key** + Save | Stored locally, sent only as a bearer token to `api.typesafe.ai` |
+| **Criteria** | Free text, e.g. `iMac 27" 2019, 5K, min. 16 GB RAM, do 15 000 Kč` |
+| **Apply** / Enter | Re-evaluates every ad on the page |
+| **Hide / Dim** | Switches how non-matching ads are suppressed |
+| **×** | Clears the filter and restores the page (keeps the API key) |
+| **Close** | Turns the plugin off for this browser profile and shows a restore button |
 
-```powershell
-npm run build    # one-off
-npm run dev      # esbuild --watch (rebuild on save)
-npm run check    # localization consistency check
-```
+Green background = the ad was evaluated and kept. Hidden ads never stay green.
 
-`dist/` is generated and git-ignored. `_locales/` is generated too but is
-committed, so the repository can be loaded directly as an unpacked extension.
+## Documentation
 
-## Project layout
+- [Architecture](docs/ARCHITECTURE.md) — components, message protocol, storage
+  keys, DOM contract, leak guards, i18n pipeline
+- [Roadmap](docs/ROADMAP.md) — planned site adapters, other System One models,
+  browser ports, store release, known issues
+
+## Project structure
 
 ```
 manifest.json          MV3 manifest (content_scripts, i18n placeholders)
-src/background.js      message router + API calls (no key ever logged)
+src/background.js      toolbar click + message router + API calls
 src/api.js             TypeSafe Jev client (batched, 30 s timeout)
-src/content.js         toolbar, filtering, observer, display modes
-locales/<locale>.json  source of truth for translations
-_locales/<locale>/     generated messages.json (do not edit)
+src/content.js         panel, filtering pipeline, observer, display modes
+locales/<locale>.json  translation source of truth
+_locales/<locale>/     generated messages.json (do not edit by hand)
 scripts/i18n-*.mjs     localization tooling
+docs/                  architecture and roadmap
 ```
 
 ## Localization
 
-All user-visible strings go through `chrome.i18n` (`t("...")` in
-`src/content.js`). Sources are flat JSON files in `locales/`; the
-`_locales/<locale>/messages.json` files WebExtensions require are **generated**.
-
 ```powershell
-# 1. scaffold a new language (copies keys from the default locale, empty values)
-npm run i18n:add -- de
-
-# 2. translate locales/de.json, then rebuild and verify
-npm run i18n:build
-npm run i18n:check
+npm run i18n:add -- de     # scaffold locales/de.json with empty values
+npm run i18n:build         # regenerate _locales/*/messages.json
+npm run i18n:check         # fail on missing / extra / empty keys
 ```
 
-`i18n:check` fails when a locale is missing keys, has extra keys or empty
-values, and reports values that are still identical to the default locale (fine
-for a WIP translation). `npm run build` runs `i18n:build` automatically.
+Default locale is `cs` (`default_locale` in `manifest.json`). Adding a language
+needs no manifest change — Firefox negotiates from `navigator.languages`.
 
-The default locale is `cs` (`default_locale` in `manifest.json`). Adding a
-language to `locales/` is enough — no manifest change is needed, Firefox
-negotiates from `navigator.languages`.
+## Naming
 
-## Design notes
+The repository uses the working title **Jev Content Filter**. Candidates for a
+public release:
 
-- **Persistence.** The old build injected the script only on toolbar click, so
-  every navigation silently dropped the filter. `content_scripts` fixes that.
-  A `globalThis.__jevFilterLoaded` guard makes the extra injection from the
-  toolbar icon a no-op that only re-opens the panel.
-- **No gaps.** Filtered ads get the `.jev-hide` class (`display: none
-  !important`). Inline styles are never touched, so clearing the filter restores
-  the page exactly — and Bazoš's `display: flex` on `.inzeraty` is preserved.
-- **Cost.** One request per 10 ads instead of one per ad, plus an in-memory
-  decision cache.
-- **Safety.** Ads that errored are marked `data-jev-state="error"` and never
-  retried automatically. The API key is only read from `chrome.storage.local`
-  and is never written to the console.
+| Name | Why |
+| --- | --- |
+| **AdSieve** | "Sieve" describes exactly what it does; short, brandable, works in CZ |
+| **JevLens** | Suggests looking at ads through an AI lens; ties to the Jev API |
+| **Síto** | Czech for sieve; very memorable locally, weaker internationally |
+| **JevSift** | Verb + product, reads well next to "Jev" |
+| **Greenlight** | Ties to the green tint that marks kept ads |
 
-## Known limitations
+## Credits
 
-- `host_permissions` is `<all_urls>` because the toolbar icon can inject the
-  panel on arbitrary sites. Narrow it if you only care about Bazoš.
-- The ad selector is hardcoded to `.inzeraty`; eBay/Aukro/Sbazar support was
-  advertised in older notes but is not implemented here.
-- Pages filtered by builds ≤ 1.0.x may still carry inline styles from that
-  version; reload the page once.
-- The `@opengeni/jev` dependency is kept for the stateful/batch experiments it
-  started from; `src/api.js` is the code path actually used.
+- Original project this fork grew from: **jev-extension** (the 1.0.0 tree in this
+  workspace). Please keep that attribution when you redistribute.
+- AI classification: **TypeSafe Jev** System One API.
+- Bundling: [esbuild](https://esbuild.github.io).
 
 ## License
 
-ISC
+[MIT](LICENSE) — use it, fork it, sell it, change it. The only requirement is
+keeping the copyright notice, so the original source stays credited.
