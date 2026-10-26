@@ -1,0 +1,71 @@
+{
+  "extName": {
+    "message": "Jev Content Filter"
+  },
+  "extDescription": {
+    "message": "Filters ads and web content with TypeSafe Jev AI."
+  },
+  "actionTitle": {
+    "message": "Show or hide the Jev filter panel"
+  },
+  "apiKeyPlaceholder": {
+    "message": "API key"
+  },
+  "apiKeySave": {
+    "message": "Save"
+  },
+  "apiKeySaved": {
+    "message": "Saved"
+  },
+  "criteriaPlaceholder": {
+    "message": "Criteria (Czech or English)…"
+  },
+  "apply": {
+    "message": "Apply"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "clearTitle": {
+    "message": "Clear the filter and restore the page"
+  },
+  "modeTitle": {
+    "message": "Switch display mode"
+  },
+  "modeHide": {
+    "message": "Hide"
+  },
+  "modeDim": {
+    "message": "Dim"
+  },
+  "showPanel": {
+    "message": "Show filter panel"
+  },
+  "statusNoAds": {
+    "message": "No ad containers found on this page"
+  },
+  "statusFiltering": {
+    "message": "Filtering…"
+  },
+  "statusDone": {
+    "message": "Filtered"
+  },
+  "statusErrors": {
+    "message": "errors"
+  },
+  "errNoApiKey": {
+    "message": "API key missing"
+  },
+  "errApi": {
+    "message": "API error"
+  },
+  "errApiShape": {
+    "message": "The API did not return a probability"
+  },
+  "errNetwork": {
+    "message": "Network error"
+  },
+  "badgeTitle": {
+    "message": "Probability that the ad does not match the criteria"
+  }
+}

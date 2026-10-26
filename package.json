@@ -1,0 +1,33 @@
+{
+  "name": "jev-content-filter",
+  "version": "1.1.0",
+  "description": "Firefox/Chrome extension that filters ads and web content with TypeSafe Jev AI",
+  "private": true,
+  "scripts": {
+    "i18n:build": "node scripts/i18n-build.mjs",
+    "i18n:check": "node scripts/i18n-check.mjs",
+    "i18n:add": "node scripts/i18n-add.mjs",
+    "prebuild": "npm run i18n:build",
+    "build": "esbuild src/background.js src/content.js --bundle --format=iife --outdir=dist --target=firefox115",
+    "dev": "npm run i18n:build && esbuild src/background.js src/content.js --bundle --format=iife --outdir=dist --target=firefox115 --watch",
+    "check": "npm run i18n:check"
+  },
+  "keywords": [
+    "firefox-extension",
+    "webextension",
+    "bazos",
+    "ai-filter",
+    "typesafe",
+    "jev"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "@opengeni/jev": "^2.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "allowScripts": {
+    "esbuild@0.24.2": true
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "extName": {
+    "message": "Jev Content Filter"
+  },
+  "extDescription": {
+    "message": "Filtruje inzeráty a obsah webu pomocí TypeSafe Jev AI."
+  },
+  "actionTitle": {
+    "message": "Zobrazit nebo skrýt panel Jev filtru"
+  },
+  "apiKeyPlaceholder": {
+    "message": "API klíč"
+  },
+  "apiKeySave": {
+    "message": "Uložit"
+  },
+  "apiKeySaved": {
+    "message": "Uloženo"
+  },
+  "criteriaPlaceholder": {
+    "message": "Kritéria (česky nebo anglicky)…"
+  },
+  "apply": {
+    "message": "Použít"
+  },
+  "close": {
+    "message": "Zavřít"
+  },
+  "clearTitle": {
+    "message": "Zrušit filtr a obnovit stránku"
+  },
+  "modeTitle": {
+    "message": "Přepnout režim zobrazení"
+  },
+  "modeHide": {
+    "message": "Skrýt"
+  },
+  "modeDim": {
+    "message": "Ztlumit"
+  },
+  "showPanel": {
+    "message": "Zobrazit panel filtru"
+  },
+  "statusNoAds": {
+    "message": "Na této stránce nebyly nalezeny žádné inzeráty"
+  },
+  "statusFiltering": {
+    "message": "Filtruji…"
+  },
+  "statusDone": {
+    "message": "Filtrováno"
+  },
+  "statusErrors": {
+    "message": "chyby"
+  },
+  "errNoApiKey": {
+    "message": "Chybí API klíč"
+  },
+  "errApi": {
+    "message": "Chyba API"
+  },
+  "errApiShape": {
+    "message": "API nevrátilo pravděpodobnost"
+  },
+  "errNetwork": {
+    "message": "Síťová chyba"
+  },
+  "badgeTitle": {
+    "message": "Pravděpodobnost, že inzerát nevyhovuje kritériím"
+  }
+}
