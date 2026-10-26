@@ -1,29 +1,58 @@
 # Jev Content Filter
 
-A browser extension that hides classified ads you don't care about. You write
+A browser extension that hides classified ads, auction site listings you don't care about. You write
 your criteria in plain language, the extension asks the
 [TypeSafe Jev](https://typesafe.ai) System One API about every ad on the page, and
 the ads that do not match disappear — collapsed, not just faded out.
 
-> **Status: work in progress.** Usable on Bazoš.cz right now. Interfaces, storage
-> keys and selectors may still change before 1.0.
+I created this as my first ever project. Because I was sick of mess classified sites sometimes returns same as auction sites. Some of them has filtering by criteria but here you can set your own criteria like range from to, this model or newer and so on.
+
+It is in usable but pretty raw state for everyone who wants to take it and enhance or modify.
+If there is anyone would take care about project, I will be glad as I do not understand forks and merge much. So can not test/evaluate them. 
+
+Most of work is done by number of free AI models and me just overlooking it as user.
+
+> **Status: work in progress.** Usable on Bazos.cz, local classifieds site, right now. Interfaces, storage
+> keys and selectors may still change before 1.0. It has modular architecture so other sites like eBay, facebook market place could be added.
 
 ## Features (implemented)
 
-- ✅ Ad filtering on Bazoš.cz / .sk / .pl / .at (`div.inzeraty`)
+- ✅ Ad filtering on Bazos.cz / .sk / .pl / .at (`div.inzeraty`)
 - ✅ Criteria in Czech or English, evaluated per ad
 - ✅ **Two display modes** — *Hide* (`display: none`, no empty gaps) and *Dim*
-  (`opacity: .2`), with the active mode highlighted
+  (`opacity: .2`). A single button always shows the **action** it will perform,
+  with a tooltip describing the effect
 - ✅ **Green tint** on ads the model evaluated and kept — a visual check that
   filtering actually ran
-- ✅ **Survives navigation** — the filter re-applies on pagination, because the
-  content script is declared in the manifest
+- ✅ **Survives navigation** — the panel and the last criteria come back on every
+  page (the content script is declared in the manifest). Filtering never re-runs
+  by itself; you press Apply
+- ✅ **Off by default** — nothing runs until you turn the plugin on with the
+  toolbar icon
 - ✅ **Batched API calls** (10 ads per request) + in-memory decision cache
 - ✅ **No retry loops** — ads that failed are marked and never re-requested
-- ✅ **Localization** (Czech, English) with tooling to add more
+- ✅ **Localization** (Czech, English) with tooling to add more (i18n)
 - ✅ API key stored in `storage.local` with a stable extension ID, so it
   survives rebuilds
 - ✅ Clear filter restores the page exactly (no leftover inline styles)
+
+## Ideas / planned features
+
+The full prioritized list with effort estimates, known issues and design notes is
+in **[docs/ROADMAP.md](docs/ROADMAP.md)**.
+
+- **Site modules** — one module per domain (Bazoš, eBay, Facebook Marketplace,
+  Aukro, Sbazar…) holding its selector and text extraction, so adding a site is
+  one file, not a patch of the core
+- **Settings for the activation regime** — auto vs. manual, per domain
+- **Prompt in the site's own search field** (narrows results server-side)
+- **Other System One models** (e.g. Laya) selectable per user
+- **Browser ports** — Chrome/Edge, Firefox for Android, Safari
+- **Official store release** — AMO and Chrome Web Store, icons, screenshots,
+  privacy policy
+- **Responsive panel layout**, configurable match threshold, persisted cache
+
+See also [Architecture](docs/ARCHITECTURE.md) for how the pieces fit together.
 
 ## Install
 
@@ -56,9 +85,9 @@ the repository can be loaded directly as an unpacked extension.
 | Element | What it does |
 | --- | --- |
 | **API key** + Save | Stored locally, sent only as a bearer token to `api.typesafe.ai` |
-| **Criteria** | Free text, e.g. `iMac 27" 2019, 5K, min. 16 GB RAM, do 15 000 Kč` |
+| **Criteria** | Free text, e.g. `iMac 27" 2019, 5K, min. 32 GB RAM` |
 | **Apply** / Enter | Re-evaluates every ad on the page |
-| **Hide / Dim** | Switches how non-matching ads are suppressed |
+| **Hide / Dim** | One button showing the *action* it will perform; the tooltip explains the effect |
 | **×** | Clears the filter and restores the page (keeps the API key) |
 | **Close** | Turns the plugin off for this browser profile and shows a restore button |
 

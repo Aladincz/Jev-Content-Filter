@@ -7,13 +7,19 @@ Ordered by value, not by effort. Effort: **S** ≈ hours, **M** ≈ a day,
 
 | Item | Effort | Notes |
 | --- | --- | --- |
-| **Decide the activation model** | S | Today the panel starts enabled on every supported page unless the user switched it off. The stated goal is "I turn it on when I want it". Options: (a) default off, restore button only; (b) remember on/off **per domain**; (c) toolbar icon acts as a real toggle. Needs a decision, then it is a small change in `init()`/`setActive()`. |
+| **Activation regime settings** | S | Done in 1.1: the plugin is **off by default**, it is turned on with the toolbar icon, and filtering never starts by itself (the last criteria are only pre-filled). What remains is a settings screen to choose the regime: manual (current), auto-on per domain, or per tab. |
 | Options page | M | Move the API key out of the injected panel, add threshold + batch size, list supported sites. `chrome.storage.local` already holds everything needed. |
 | Persisted decision cache | S | The cache is in-memory today, so page 2 pays again for identical ads. Move to `storage.session`/`local` with a size cap. |
 | Tests + CI | M | Unit tests for pure helpers (`normalizeText`, `cacheKey`, `errorMessage`), one integration test against a saved Bazoš HTML fixture (jsdom), CI running `npm run build` + `npm run i18n:check`. |
 | Narrow `host_permissions` | S | `<all_urls>` is only needed because the icon injects on arbitrary sites. Either drop the feature or ask for the permission on demand. |
 
 ## Site adapters (any page, any server)
+
+> **Hard requirement (see the developer journal):** every domain gets its own
+> module — `src/sites/bazos.js`, `src/sites/ebay.js`, … — holding its selector,
+> text extraction and pagination quirks. The core (panel, pipeline, API client,
+> i18n) must stay free of any site-specific knowledge. Adding a site is a new
+> module plus a registration entry, never a patch of the core.
 
 The ad container is hardcoded (`ADS_SELECTOR = ".inzeraty"`). Replace it with an
 adapter registry:
@@ -93,6 +99,8 @@ models (e.g. **Laya**).
   clearing everything.
 - **Badge overlap** — the absolute badge can cover a site's own "TOP" label.
 - **No keyboard shortcut** (`commands` API) to toggle the panel or apply.
+- **Panel is not responsive** — it is a fixed full-width bar; on narrow windows
+  and Firefox for Android it needs wrapping/collapsing rules.
 - **Batch size is fixed at 10**; large batches may hit 413 on some plans. Make it
   configurable and halve it automatically on `HTTP_413`.
 - **No cancellation** of in-flight requests when navigating away.

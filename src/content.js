@@ -11,6 +11,7 @@ const CACHE_LIMIT = 2000;
 const OBSERVER_DELAY_MS = 500;
 const MAX_TEXT_LENGTH = 1200;
 const STYLE_ID = "jev-filter-styles";
+const CRITERIA_MAX_HEIGHT = 120;
 
 let currentMode = "hide"; // "hide" | "opacity"
 let currentCriteria = "";
@@ -23,7 +24,7 @@ let observerTimeout = null;
 let criteriaInput = null;
 let apiKeyInput = null;
 let statusLabel = null;
-const modeButtons = { hide: null, opacity: null };
+let modeButton = null;
 
 /** criteria+text -> probability, so a re-apply never pays twice. */
 const decisionCache = new Map();
@@ -59,13 +60,15 @@ const STYLE_TEXT = `
 }
 .jev-input::placeholder { color: #bdc3c7; }
 .jev-input:focus { outline: none; border-color: #3498db; }
+.jev-criteria {
+  width: 320px; max-width: 60vw; min-height: 31px;
+  line-height: 1.25; resize: none; overflow-y: auto; font-family: inherit;
+}
 .jev-btn, .jev-mode-btn {
   padding: 5px 10px; border: none; border-radius: 4px;
   background: #3498db; color: #fff; font-size: 14px; cursor: pointer;
 }
 .jev-btn:hover, .jev-mode-btn:hover { background: #2980b9; }
-.jev-mode-btn.active { background: #27ae60; }
-.jev-mode-btn.active:hover { background: #229954; }
 .jev-close { background: #e74c3c; }
 .jev-close:hover { background: #c0392b; }
 .jev-group { display: flex; gap: 5px; align-items: center; }
@@ -93,9 +96,19 @@ function setStatus(text) {
   if (statusLabel) statusLabel.textContent = text || "";
 }
 
-function updateModeButtons() {
-  if (modeButtons.hide) modeButtons.hide.classList.toggle("active", currentMode === "hide");
-  if (modeButtons.opacity) modeButtons.opacity.classList.toggle("active", currentMode === "opacity");
+/** The single mode button always shows the ACTION, never the current state. */
+function updateModeButton() {
+  if (!modeButton) return;
+  const switchToHide = currentMode !== "hide";
+  modeButton.textContent = switchToHide ? t("modeHide") : t("modeDim");
+  modeButton.title = switchToHide ? t("modeSwitchToHideTitle") : t("modeSwitchToDimTitle");
+}
+
+/** Grow the criteria field with its content, up to CRITERIA_MAX_HEIGHT. */
+function autosizeCriteria() {
+  if (!criteriaInput) return;
+  criteriaInput.style.height = "auto";
+  criteriaInput.style.height = `${Math.min(criteriaInput.scrollHeight, CRITERIA_MAX_HEIGHT)}px`;
 }
 
 function buildToolbar() {
@@ -135,14 +148,18 @@ function buildToolbar() {
   const criteriaGroup = document.createElement("div");
   criteriaGroup.className = "jev-group";
 
-  criteriaInput = document.createElement("input");
-  criteriaInput.type = "text";
-  criteriaInput.className = "jev-input";
-  criteriaInput.style.width = "260px";
+  criteriaInput = document.createElement("textarea");
+  criteriaInput.rows = 1;
+  criteriaInput.className = "jev-input jev-criteria";
   criteriaInput.placeholder = t("criteriaPlaceholder");
   criteriaInput.value = currentCriteria;
-  criteriaInput.addEventListener("keyup", (event) => {
-    if (event.key === "Enter") applyCriteria();
+  criteriaInput.addEventListener("input", autosizeCriteria);
+  criteriaInput.addEventListener("keydown", (event) => {
+    // Enter applies; Shift+Enter inserts a line break.
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      applyCriteria();
+    }
   });
 
   const clearButton = document.createElement("span");
@@ -154,23 +171,10 @@ function buildToolbar() {
   criteriaGroup.append(criteriaInput, clearButton);
 
   // --- mode / apply / close ------------------------------------------------
-  const modeGroup = document.createElement("div");
-  modeGroup.className = "jev-group";
-
-  modeButtons.hide = document.createElement("button");
-  modeButtons.hide.className = "jev-mode-btn";
-  modeButtons.hide.textContent = t("modeHide");
-  modeButtons.hide.title = t("modeTitle");
-  modeButtons.hide.onclick = () => setMode("hide");
-
-  modeButtons.opacity = document.createElement("button");
-  modeButtons.opacity.className = "jev-mode-btn";
-  modeButtons.opacity.textContent = t("modeDim");
-  modeButtons.opacity.title = t("modeTitle");
-  modeButtons.opacity.onclick = () => setMode("opacity");
-
-  updateModeButtons();
-  modeGroup.append(modeButtons.hide, modeButtons.opacity);
+  modeButton = document.createElement("button");
+  modeButton.className = "jev-mode-btn";
+  modeButton.onclick = cycleMode;
+  updateModeButton();
 
   const applyButton = document.createElement("button");
   applyButton.className = "jev-btn";
@@ -185,8 +189,9 @@ function buildToolbar() {
   statusLabel = document.createElement("span");
   statusLabel.className = "jev-status";
 
-  toolbar.append(keyGroup, criteriaGroup, modeGroup, applyButton, closeButton, statusLabel);
+  toolbar.append(keyGroup, criteriaGroup, modeButton, applyButton, closeButton, statusLabel);
   document.body.prepend(toolbar);
+  autosizeCriteria();
 
   updateStatus();
 }
@@ -197,8 +202,7 @@ function removeToolbar() {
   criteriaInput = null;
   apiKeyInput = null;
   statusLabel = null;
-  modeButtons.hide = null;
-  modeButtons.opacity = null;
+  modeButton = null;
 }
 
 function showRestoreButton() {
@@ -228,7 +232,9 @@ function setActive(active) {
     buildToolbar();
     applyMode();
     setupObserver();
-    if (currentCriteria) filterPage();
+    // Deliberately no filterPage(): activating the panel must not re-run the
+    // previous query on a page that may be a completely different section.
+    setStatus(currentCriteria ? t("statusReady") : "");
     return;
   }
 
@@ -279,10 +285,10 @@ function clearFilter() {
   setStatus("");
 }
 
-function setMode(mode) {
-  currentMode = mode === "opacity" ? "opacity" : "hide";
+function cycleMode() {
+  currentMode = currentMode === "hide" ? "opacity" : "hide";
   chrome.storage.local.set({ jevMode: currentMode });
-  updateModeButtons();
+  updateModeButton();
   applyMode();
 }
 
@@ -491,7 +497,7 @@ function init() {
       savedApiKey = result.jevApiKey || "";
       currentCriteria = result.jevCriteria || "";
       currentMode = result.jevMode === "opacity" ? "opacity" : "hide";
-      isPluginActive = result.jevPluginActive !== false;
+      isPluginActive = result.jevPluginActive === true;
 
       chrome.runtime.onMessage.addListener((request) => {
         if (request?.action === "showToolbar") showToolbar();
@@ -505,10 +511,9 @@ function init() {
       buildToolbar();
       setupObserver();
 
-      // Persisted criteria are re-applied on every page load, so filtering
-      // continues after pagination instead of "switching itself off".
-      if (currentCriteria) filterPage();
-      else updateStatus();
+      // Criteria are only restored into the input. Filtering never starts on
+      // its own: the last query usually belongs to a different section.
+      setStatus(currentCriteria ? t("statusReady") : "");
     }
   );
 }

@@ -69,3 +69,26 @@
 - Docs: what is implemented, structure, functions, roadmap, install, licence.
 - Site adapters (eBay, Facebook Marketplace), browser ports, official release.
 
+
+## 26. 10. 2026 (2)
+
+### Změny
+- Režim zobrazení: jedno tlačítko, které ukazuje AKCI (Skrýt / Ztlumit), ne aktuální stav.
+  Tooltip popisuje skutečný účinek (display:none vs. opacity 20 %).
+- Pole kritérií: textarea, dynamicky roste do 120 px. Enter = Použít, Shift+Enter = nový řádek.
+- Aktivace: plugin je defaultně VYPNUTÝ. Zapíná se tlačítkem pluginu (ikona) nebo
+  tlačítkem "Zobrazit panel filtru". Po načtení stránky se filtr sám nespustí – kritéria
+  se pouze předvyplní, spuštění je na tlačítku Použít. Důvod: poslední dotaz patří jiné sekci.
+- README_FIXED.txt a README_FORK_STRUCTURE.md přesunuty do docs/history/.
+- README: nová sekce Ideas / planned features s prolinkováním docs/ROADMAP.md.
+
+### Základní požadavek pro další vývoj: moduly pro domény
+Každá doména musí mít vlastní modul. Veškerá logika specifická pro daný web
+(selektor inzerátu, extrakce textu, chování při stránkování, případné speciální UI)
+patří do jednoho souboru pro doménu, např. `src/sites/bazos.js`.
+Jádro (panel, pipeline, API klient, i18n) nesmí obsahovat selektory ani jiné znalosti
+o konkrétním webu. Přidání dalšího webu = nový modul + registrace, bez zásahu do jádra.
+Toto je základní požadavek architektury, ne volitelné vylepšení.
+
+### Otevřené rozhodnutí
+- Settings pro režim aktivace (manuální / automaticky per doména) – zapsáno v Roadmapě.

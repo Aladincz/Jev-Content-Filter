@@ -29,14 +29,17 @@
   "clearTitle": {
     "message": "Zrušit filtr a obnovit stránku"
   },
-  "modeTitle": {
-    "message": "Přepnout režim zobrazení"
-  },
   "modeHide": {
     "message": "Skrýt"
   },
   "modeDim": {
     "message": "Ztlumit"
+  },
+  "modeSwitchToHideTitle": {
+    "message": "Skryje inzeráty, které nevyhovují kritériím (display: none – zmizí i mezery)"
+  },
+  "modeSwitchToDimTitle": {
+    "message": "Jen ztlumí inzeráty, které nevyhovují kritériím (průhlednost 20 %)"
   },
   "showPanel": {
     "message": "Zobrazit panel filtru"
@@ -49,6 +52,9 @@
   },
   "statusDone": {
     "message": "Filtrováno"
+  },
+  "statusReady": {
+    "message": "Připraveno – stiskni Použít"
   },
   "statusErrors": {
     "message": "chyby"

@@ -29,14 +29,17 @@
   "clearTitle": {
     "message": "Clear the filter and restore the page"
   },
-  "modeTitle": {
-    "message": "Switch display mode"
-  },
   "modeHide": {
     "message": "Hide"
   },
   "modeDim": {
     "message": "Dim"
+  },
+  "modeSwitchToHideTitle": {
+    "message": "Hides non-matching ads (display: none – the page closes up)"
+  },
+  "modeSwitchToDimTitle": {
+    "message": "Only dims non-matching ads (20% opacity)"
   },
   "showPanel": {
     "message": "Show filter panel"
@@ -49,6 +52,9 @@
   },
   "statusDone": {
     "message": "Filtered"
+  },
+  "statusReady": {
+    "message": "Ready – press Apply"
   },
   "statusErrors": {
     "message": "errors"
