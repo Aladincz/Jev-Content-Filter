@@ -110,7 +110,7 @@ src/content.js         panel, filtering pipeline, observer, display modes
 locales/<locale>.json  translation source of truth
 _locales/<locale>/     generated messages.json (do not edit by hand)
 scripts/i18n-*.mjs     localization tooling
-docs/                  architecture and roadmap
+docs/                  architecture, roadmap, history/ (old notes)
 ```
 
 ## Localization

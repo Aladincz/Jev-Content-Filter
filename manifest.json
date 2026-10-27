@@ -34,7 +34,14 @@
         "*://*.bazos.sk/*",
         "*://bazos.sk/*",
         "*://*.bazos.pl/*",
-        "*://*.bazos.at/*"
+        "*://*.bazos.at/*",
+        "*://*.ebay.com/*",
+        "*://ebay.com/*",
+        "*://*.ebay.co.uk/*",
+        "*://*.ebay.de/*",
+        "*://*.ebay.fr/*",
+        "*://*.ebay.it/*",
+        "*://*.ebay.es/*"
       ],
       "js": [
         "dist/content.js"

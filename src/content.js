@@ -5,7 +5,9 @@
 // The toolbar icon injects it manually on other sites; a global guard below
 // keeps a second injection from creating duplicate observers.
 
-const ADS_SELECTOR = ".inzeraty";
+const ADS_SELECTOR = /\.ebay\./.test(location.hostname)
+  ? "#searchResults .s-item"
+  : ".inzeraty";
 const PROCESSED_ATTR = "data-jev-state"; // "done" | "error"
 const CACHE_LIMIT = 2000;
 const OBSERVER_DELAY_MS = 500;
@@ -279,7 +281,10 @@ function clearFilter() {
   // user to paste the key again.
   currentCriteria = "";
   chrome.storage.local.set({ jevCriteria: "" });
-  if (criteriaInput) criteriaInput.value = "";
+  if (criteriaInput) {
+    criteriaInput.value = "";
+    autosizeCriteria();
+  }
   resetAllAds();
   decisionCache.clear();
   setStatus("");
