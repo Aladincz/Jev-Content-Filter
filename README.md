@@ -5,7 +5,7 @@ your criteria in plain language, the extension asks the
 [TypeSafe Jev](https://typesafe.ai) System One API about every ad on the page, and
 the ads that do not match disappear — collapsed, not just faded out.
 
-I created this as my first ever project. Because I was sick of mess classified sites sometimes returns same as auction sites. Some of them has filtering by criteria but here you can set your own criteria like range from to, this model or newer and so on.
+I created this as my first ever project. Because I was sick of mess classified sites sometimes returns same as auction sites. Some of them has filtering by criteria but here you can set your own criteria like range from to, this model or newer and so on. Search fulltext in fact.
 
 It is in usable but pretty raw state for everyone who wants to take it and enhance or modify.
 If there is anyone would take care about project, I will be glad as I do not understand forks and merge much. So can not test/evaluate them. 
