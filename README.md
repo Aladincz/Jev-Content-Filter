@@ -36,6 +36,15 @@ Most of work is done by number of free AI models and me just overlooking it as u
   survives rebuilds
 - ✅ Clear filter restores the page exactly (no leftover inline styles)
 
+### Screenshots
+
+#### Unwanted ads muted with transparency
+![Selected adds marked](./screenshots/Jev-Content-Filter-mutted.png)
+
+#### Unwanted ads hidden
+![Green Background for selected](./screenshots/Jev-Content-Filter-hidden.png)
+
+
 ## Ideas / planned features
 
 The full prioritized list with effort estimates, known issues and design notes is
