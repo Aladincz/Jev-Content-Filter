@@ -139,8 +139,7 @@ public release:
 
 ## Credits
 
-- Original project this fork grew from: **jev-extension** (the 1.0.0 tree in this
-  workspace). Please keep that attribution when you redistribute.
+- Original project this fork grew from: **jev-extension**. Please keep that attribution when you redistribute.
 - AI classification: **TypeSafe Jev** System One API.
 - Bundling: [esbuild](https://esbuild.github.io).
 
