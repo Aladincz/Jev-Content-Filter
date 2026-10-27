@@ -39,10 +39,10 @@ Most of work is done by number of free AI models and me just overlooking it as u
 ### Screenshots
 
 #### Unwanted ads muted with transparency
-![Selected adds marked](./screenshots/Jev-Content-Filter-mutted.png)
+![Selected adds marked](./docs/screenshots/Jev-Content-Filter-muted.png)
 
 #### Unwanted ads hidden
-![Green Background for selected](./screenshots/Jev-Content-Filter-hidden.png)
+![Green Background for selected](./docs/screenshots/Jev-Content-Filter-hidden.png)
 
 
 ## Ideas / planned features
